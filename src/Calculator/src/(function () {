@@ -1,0 +1,108 @@
+(function () {
+  if (window.__lokaBioPopupInstalled) return;
+  window.__lokaBioPopupInstalled = true;
+
+  const peopleMap = {
+    "about-Julie": "Julie",
+    "about-Gia": "Gia",
+    "about-Rosario": "Rosario",
+    "about-Katie": "Katie",
+    "about-Anthony": "Anthony",
+    "about-Leigh": "Leigh",
+    "about-Graciela": "Graciela",
+    "about-Chloe": "Chloe",
+    "about-Nicole": "Nicole"
+  };
+
+  function findTriggerElement(startElement) {
+    let el = startElement;
+
+    while (el && el !== document.body) {
+      if (el.id && peopleMap[el.id]) {
+        return {
+          element: el,
+          person: peopleMap[el.id]
+        };
+      }
+
+      for (const key in peopleMap) {
+        if (el.classList && el.classList.contains(key)) {
+          return {
+            element: el,
+            person: peopleMap[key]
+          };
+        }
+      }
+
+      el = el.parentElement;
+    }
+
+    return null;
+  }
+
+  function openPopup(person) {
+    closeAllPopups();
+
+    const popup = document.getElementById("bio-" + person);
+
+    if (popup) {
+      popup.classList.add("is-open");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closePopup(popup) {
+    if (popup) {
+      popup.classList.remove("is-open");
+      document.body.style.overflow = "";
+    }
+  }
+
+  function closeAllPopups() {
+    document.querySelectorAll(".bio-popup").forEach(function (popup) {
+      popup.classList.remove("is-open");
+    });
+
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("mouseover", function (event) {
+    const trigger = findTriggerElement(event.target);
+
+    if (trigger) {
+      trigger.element.classList.add("about-btn");
+      openPopup(trigger.person);
+    }
+  });
+
+  document.addEventListener("click", function (event) {
+    const closeBtn = event.target.closest(".close-popup");
+
+    if (closeBtn) {
+      event.preventDefault();
+      closePopup(closeBtn.closest(".bio-popup"));
+      return;
+    }
+
+    const popup = event.target.classList.contains("bio-popup") ? event.target : null;
+
+    if (popup) {
+      closePopup(popup);
+      return;
+    }
+
+    const trigger = findTriggerElement(event.target);
+
+    if (trigger) {
+      event.preventDefault();
+      trigger.element.classList.add("about-btn");
+      openPopup(trigger.person);
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeAllPopups();
+    }
+  });
+})();
